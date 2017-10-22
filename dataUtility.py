@@ -20,6 +20,7 @@ class csV2Cla():
         df.lyrics = df.lyrics.str.replace('(', '')
         df.lyrics = df.lyrics.str.replace(')', '')
         df.lyrics = df.lyrics.str.replace('!', '')
+        df = df[df.lyrics != "INSTRUMENTAL"]
         #split the strings during processing
         #doing it all at once will take too long
         #we can limit the time taken during processing
