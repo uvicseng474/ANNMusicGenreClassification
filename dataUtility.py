@@ -9,14 +9,20 @@ class csV2Cla():
 
     def __init__(self, fname):
         assert(os.path.exists(fname))
-        df = pd.read_csv(fname)
-        # organize the data by space
-        df = df.replace({'\n': ' '}, regex=True)
-        df = df.replace({',': ''}, regex=True)
-        df = df.replace({'.': ''}, regex=True)
+        df = pd.read_csv(fname, low_memory=False)
         # remove unhelpful data
-        #df.drop(df[df['lyrics'].str.split().str.len() < 10]) # this step made my computer crash don't try
-        #self.better_base = df[df['lyrics'].str.split().str.len() >= 10]
+        df = df.dropna()
+        df.lyrics = df.lyrics.str.replace('\n', ' ')
+        df.lyrics = df.lyrics.str.replace(',', '')
+        df.lyrics = df.lyrics.str.replace('.', '')
+        df.lyrics = df.lyrics.str.replace('\[.*\]', '')
+        df.lyrics = df.lyrics.str.replace(':', '')
+        df.lyrics = df.lyrics.str.replace('(', '')
+        df.lyrics = df.lyrics.str.replace(')', '')
+        df.lyrics = df.lyrics.str.replace('!', '')
+        #split the strings during processing
+        #doing it all at once will take too long
+        #we can limit the time taken during processing
         self.base = df
         self.genre = df.genre.unique()
         self.artist = df.artist.unique()
@@ -26,3 +32,4 @@ if __name__ == '__main__':
     cvt = csV2Cla('data/lyrics.csv')
     print(cvt.base.head())
     print(cvt.year)
+    print(cvt.base.lyrics)
