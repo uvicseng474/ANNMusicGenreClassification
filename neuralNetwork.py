@@ -6,6 +6,11 @@ class NeuralNetwork():
         # store helpful data structures
 
     def train(self, X, y):
+        # Binary input patterns
+        # For a set of binary patterns s(p), p = 1 to P
+        # Here, s(p) = s1(p), s2(p),…, si(p),…, sn(p)
+        # Weight Matrix is given by
+        # 𝐰𝐢𝐣 = ∑ [𝟐𝐬𝐢(𝐩) − 𝟏][𝟐𝐬𝐣(𝐩) − 𝟏 ] 𝐟𝐨𝐫 𝐢 ≠ j (∑ goes from 1 to P)
         
     def test(self, X, y):
 
