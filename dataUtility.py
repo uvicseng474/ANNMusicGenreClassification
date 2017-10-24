@@ -19,11 +19,14 @@ class csV2Cla():
         #split the strings during processing
         #doing it all at once will take too long
         #we can limit the time taken during processing
+        df['word_count'] = df.lyrics.str.split().str.len()
         self.base = df
         self.genre = df.genre.unique()
         self.artist = df.artist.unique()
         self.year = df.year.unique()
-        self.lyrics_vector = df.lyrics.str.split(' ')
+        #results = set()  useful method to create a set from a very large dataframe
+        self.lyrics_vector = df.lyrics.str.split(' ')#.apply(results.update)
+        #self.result = results
 
     def getFreqWords(self, i, n):
         words = np.unique(self.lyrics_vector[1], return_counts=True)
@@ -45,3 +48,4 @@ if __name__ == '__main__':
     cwords = cvt.getFreqWords(i, 10)
     print('Top 10 Most Common Words:\n{}'.format(cwords))
     print('-'*10)
+    #print(cvt.result)
