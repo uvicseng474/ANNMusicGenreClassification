@@ -4,6 +4,7 @@
 import os
 import numpy as np
 import pandas as pd
+from collections import Counter
 
 class csV2Cla():
 
@@ -23,6 +24,7 @@ class csV2Cla():
         self.genre = df.genre.unique()
         self.artist = df.artist.unique()
         self.year = df.year.unique()
+        #self.result = Counter(" ".join(df.lyrics.values.tolist()).split(" ")).items()
         self.lyrics_vector = df.lyrics.str.split(' ')
 
     def getFreqWords(self, i, n):
@@ -30,6 +32,10 @@ class csV2Cla():
         words = np.array(words, dtype=object).T
         words = words[np.argsort(words[:,1])[::-1][:n]]
         return words
+
+    def getFreqWordsByGenre(self, genre):
+        return Counter(" ".join(self.base[self.base.genre == genre].lyrics.values.tolist()).split(" "))
+        
 
 if __name__ == '__main__':
     cvt = csV2Cla('data/lyrics.csv')
@@ -45,3 +51,8 @@ if __name__ == '__main__':
     cwords = cvt.getFreqWords(i, 10)
     print('Top 10 Most Common Words:\n{}'.format(cwords))
     print('-'*10)
+
+    for y in cvt.genre:
+        genredict = cvt.getFreqWordsByGenre(y)
+        print(y + " most_common ")
+        print(genredict.most_common(15))
