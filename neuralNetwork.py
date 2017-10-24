@@ -1,5 +1,14 @@
 from dataUtility import csV2Cla
 
+class NeuralNetwork():
+    
+    def __init__(self):
+        # store helpful data structures
+
+    def train(self, X, y):
+        
+    def test(self, X, y):
+
 data =  csV2Cla('data/lyrics.csv')
 
 # run python neuralNetwork.py
