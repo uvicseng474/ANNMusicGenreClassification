@@ -19,11 +19,11 @@ class NeuralNetwork():
         print('todo')
 
 
-if not os.path.exists('data/results.csv') and not os.path.exists('data/results.pickle') and not os.path.exists('data/counts.pickle'):
-    data = csV2Cla('data/lyrics.csv', 'data/results.csv', 'data/result.pickle', 'data/counts.pickle')
+if not os.path.exists('data/results.pickle'):
+    data = csV2Cla('data/lyrics.csv','data/result.pickle')
 else:
     data = csV2Cla()
-    data.load('data/results.csv', 'data/result.pickle', 'data/counts.pickle')
+    data.load('data/result.pickle')
 
 # run python neuralNetwork.py
 # below statements are to understand data structure
