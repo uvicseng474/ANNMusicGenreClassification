@@ -4,12 +4,16 @@
 import os
 import numpy as np
 import pandas as pd
+import pickle
+
 from collections import Counter
 
 class csV2Cla():
 
-    def __init__(self, fname):
+    def __init__(self, fname = None, fout = None, fpickle = None, fcount = None):
         print('Reading and filtering data... ', end='')
+        if fname is None:
+            return
         assert(os.path.exists(fname))
         df = pd.read_csv(fname, low_memory=False)
         # remove unhelpful data
@@ -26,12 +30,41 @@ class csV2Cla():
         # 'Other' genre is mainly composed of other languages
         df = df[df.genre != "Other"]
         print('Done')
+        if(fout is not None and fpickle is not None and fcount is not None):
+            print('Save data frame to csv...', end='')
+            df.to_csv(fout, encoding="utf8")
+            print('Done')
         print('Finding unique values... ', end='')
         self.base = df
         self.genre = df.genre.unique()
         self.artist = df.artist.unique()
         self.year = df.year.unique()
+        self.count_all = Counter(" ".join(df.lyrics.values.tolist()).split(" "))
         #self.lyrics_vector = df.lyrics.str.split(' ')
+        print('Done')
+        if(fpickle is not None and fcount is not None):
+            print('Save data to pickle...', end='')
+            f = open(fpickle, 'wb')
+            fc = open(fcount, 'wb')
+            pickle.dump([" ".join(str(v) for v in self.genre), " ".join(str(v) for v in self.artist), " ".join(str(v) for v in self.year)], f)
+            pickle.dump(self.count_all, fc)
+            print('Done')
+
+    def load(self, fin, fpickle, fcount):
+        # check paths
+        print('Reading data... ', end='')
+        assert(os.path.exists(fin))
+        assert(os.path.exists(fpickle))
+        assert(os.path.exists(fcount))
+        self.base = pd.read_csv(fin, low_memory=False, encoding = "utf8")
+         # get back pickle objects
+        with open(fpickle, 'rb') as f:
+            sgenre, sartist, syear = pickle.load(f)
+            self.genre = sgenre.split(' ')
+            self.artist = sartist.split(' ')
+            self.year = syear.split(' ')
+        with open(fcount, 'rb') as f:
+            self.count_all = pickle.load(f)
         print('Done')
 
     def getFreqWords(self, arr, n):
@@ -47,7 +80,7 @@ class csV2Cla():
         return Counter(" ".join(self.base[self.base.genre == genre].lyrics.values.tolist()).split(" "))
 
     def featureExtraction(self, n, max):
-        print('Extracting Features...')
+        print('Extracting ...')
         most_common_by_genre = {}
         for genre in cvt.genre:
             genredict = cvt.getFreqWordsByGenre(genre)
@@ -68,7 +101,7 @@ class csV2Cla():
         return most_common_by_genre
 
 if __name__ == '__main__':
-    cvt = csV2Cla('data/lyrics.csv')
+    cvt = csV2Cla('data/lyrics.csv', 'data/results.csv', 'data/result.pickle','data/counts.pickle')
 
     # print(cvt.base.head())
     # print(cvt.year)

@@ -1,2 +1,3 @@
 *.pyc
-data/lyrics.csv
+data/*.csv
+data/*.pickle
