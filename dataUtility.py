@@ -4,12 +4,16 @@
 import os
 import numpy as np
 import pandas as pd
+import pickle
+
 from collections import Counter
 
 class csV2Cla():
 
-    def __init__(self, fname):
+    def __init__(self, fname = None, fpickle = None):
         print('Reading and filtering data... ', end='')
+        if fname is None:
+            return
         assert(os.path.exists(fname))
         df = pd.read_csv(fname, low_memory=False)
         # remove unhelpful data
@@ -25,13 +29,25 @@ class csV2Cla():
         df = df[df.genre != "Not Available"]
         # 'Other' genre is mainly composed of other languages
         df = df[df.genre != "Other"]
-        print('Done')
-        print('Finding unique values... ', end='')
         self.base = df
         self.genre = df.genre.unique()
         self.artist = df.artist.unique()
         self.year = df.year.unique()
+        self.count_all = Counter(" ".join(df.lyrics.values.tolist()).split(" "))
         #self.lyrics_vector = df.lyrics.str.split(' ')
+        print('Done')
+        if(fpickle is not None):
+            print('Save data to pickle...', end='')
+            f = open(fpickle, 'wb')
+            pickle.dump(self, f)
+            print('Done')
+
+    def load(self, fpickle):
+        print('Reading data... ', end='')
+        assert(os.path.exists(fpickle))
+         # get back pickle objects
+        with open(fpickle, 'rb') as f:
+            self = pickle.load(f)
         print('Done')
 
     def getFreqWords(self, arr, n):
@@ -47,7 +63,7 @@ class csV2Cla():
         return Counter(" ".join(self.base[self.base.genre == genre].lyrics.values.tolist()).split(" "))
 
     def featureExtraction(self, n, max):
-        print('Extracting Features...')
+        print('Extracting ...')
         most_common_by_genre = {}
         for genre in cvt.genre:
             genredict = cvt.getFreqWordsByGenre(genre)
@@ -68,7 +84,7 @@ class csV2Cla():
         return most_common_by_genre
 
 if __name__ == '__main__':
-    cvt = csV2Cla('data/lyrics.csv')
+    cvt = csV2Cla('data/lyrics.csv', 'data/result.pickle')
 
     # print(cvt.base.head())
     # print(cvt.year)
