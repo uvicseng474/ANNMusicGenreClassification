@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     X_train, X_test, y_train, y_test = train_test_split(X,y)
     
-    mlp = MLPClassifier(hidden_layer_sizes=(numAttr,numAttr,numAttr))
+    mlp = MLPClassifier(hidden_layer_sizes=(numAttr))
     print('fitting data')
     mlp.fit(X_train,y_train)
     print('making predictions')
