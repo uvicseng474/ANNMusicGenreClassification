@@ -10,6 +10,7 @@ from sklearn.metrics import classification_report,confusion_matrix,accuracy_scor
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 
 #if not os.path.exists('data/results.pickle'):
@@ -65,11 +66,12 @@ def plot_classification_report(cr, classes ,title='Classification report ', cmap
     plt.xlabel('Measures')
 
 if __name__ == '__main__':
+    print('Start time: ' + time.strftime('%H:%M:%S'))
+    file_path = 'data/preprocessed_data.csv'
+    if not os.path.exists(file_path):
+        raise Exception("file {} not found".format(file_path))
 
-    if not os.path.exists('data/preprocessed_data_attempt1.csv'):
-        sys.exit("file preprocessed_data.csv not found")
-
-    data = pd.read_csv('data/preprocessed_data_attempt1.csv', sep=',', dtype = None)
+    data = pd.read_csv(file_path, sep=',', dtype = None)
     X = data.values[:,3:]
     X = X.astype(int)
     y = data.values[:,1]
@@ -87,17 +89,14 @@ if __name__ == '__main__':
 
     for i in range(n_trials):
 
-        print('Trial '+str(i))
+        print('Trial '+str(i+1))
         X_train, X_test, y_train, y_test = train_test_split(X,y)
 
-        mlp = MLPClassifier(hidden_layer_sizes=(numAttr))
-        print('fitting data')
+        mlp = MLPClassifier(hidden_layer_sizes=(numAttr), activation='logistic', solver='lbfgs', max_iter=500)
+        print('\tTraining...')
         mlp.fit(X_train,y_train)
-        print('making predictions')
+        print('\tPredicting...')
         predictions = mlp.predict(X_test)
-        # print (confusion_matrix(y_test,predictions))
-        # print (classification_report(y_test,predictions,labels=["Country","Electronic","Folk","Hip-Hop","Indie",
-        #                                                         "Jazz","Metal","Pop","R&B","Rock"]))
 
         accuracy = accuracy_score(y_test, predictions)
         precision = precision_score(y_test, predictions, average=None)
@@ -202,33 +201,4 @@ if __name__ == '__main__':
     ax.yaxis.grid()
     plt.show()
 
-
-    #X_train, X_test, y_train, y_test = train_test_split(X,y)
-    
-    #mlp = MLPClassifier(hidden_layer_sizes=(numAttr))
-    #print('fitting data')
-    #mlp.fit(X_train,y_train)
-    #print('making predictions')
-    #predictions = mlp.predict(X_test)
-    #print (confusion_matrix(y_test,predictions))
-    #print (classification_report(y_test,predictions,labels=["Country","Electronic","Folk","Hip-Hop","Indie",
-    #classes = ["Country","Electronic","Folk","Hip-Hop","Indie", "Jazz","Metal","Pop","R&B","Rock"]
-    #plt.figure()
-    #confusion_m = confusion_matrix(y_test,predictions)
-    #print(confusion_m)
-    #plot_confusion_matrix(confusion_m, classes)
-    #plt.figure()
-    #plot_confusion_matrix(confusion_m, classes, True)
-    #plt.figure()
-    #cr = classification_report(y_test,predictions,labels=classes)
-    #print(cr)
-    #plot_classification_report(cr,classes)
-    #plt.show()
-
-# run python neuralNetwork.py
-# below statements are to understand data structure
-#print("List of genres \n", data.genre)
-#print("\nList of years :\n", data.year)
-#print("\nList of artists :\n", data.artist)
-#print("\nDescription of data :\n", data.base.head())
-#print("\nList of lyrics :\n", data.base.lyrics)
+    print('End time: ' + time.strftime('%H:%M:%S'))
