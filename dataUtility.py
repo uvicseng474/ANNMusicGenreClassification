@@ -5,6 +5,8 @@ import os
 import numpy as np
 import pandas as pd
 import pickle
+import sys
+import time
 
 from collections import Counter
 
@@ -63,7 +65,7 @@ class csV2Cla():
         print('Getting most frequent words in genre: ' + genre)
         return Counter(" ".join(self.base[self.base.genre == genre].lyrics.values.tolist()).split(" "))
 
-    def featureExtraction(self, n, max):
+    def featureExtraction(self, n, max, ngenres):
         print('Extracting ...')
         most_common_by_genre = {}
         for genre in cvt.genre:
@@ -75,7 +77,7 @@ class csV2Cla():
             for w in list(cw):
                 common_words.append(w)
         all_genres = Counter(common_words)
-        remove = [w for w in list(all_genres) if all_genres[w]>2]
+        remove = [w for w in list(all_genres) if all_genres[w]>ngenres]
 
         for genre,cw in most_common_by_genre.items():
             for w in list(cw):
@@ -86,6 +88,7 @@ class csV2Cla():
 
     def getFeatureList(self, most_common_d):
         feature_list = np.concatenate([np.array(i) for i in most_common_by_genre.values()])
+        feature_list = np.unique(feature_list)
         return feature_list
 
     def preprocessData(self, feature_list, out_path):
@@ -97,7 +100,7 @@ class csV2Cla():
         for i,genre in enumerate(self.base.genre):
             preprocessed_data[1][i] = genre
         proc_d['Genre'] = preprocessed_data[1]
-
+        print()
         for k,word in enumerate(feature_list):
             k = k+2
             for i,song in enumerate(self.lyrics_vector):
@@ -106,27 +109,26 @@ class csV2Cla():
                 else:
                     preprocessed_data[k][i] = 0
             proc_d[word] = preprocessed_data[k]
+            sys.stdout.write('\rProcessing word %-10s %2s out of %3s' % (word, k-1, len(feature_list)))
+            sys.stdout.flush()
 
+        print()
         dataf = pd.DataFrame(proc_d)
         dataf.to_csv(out_path)
         return os.path.abspath(out_path)
 
 if __name__ == '__main__':
-    cvt = csV2Cla('data/lyrics.csv', 'data/result.pickle')
-    # cvt = csV2Cla()
-    # cvt = cvt.load('data/result.pickle')
-
-    # print(cvt.base.head())
-    # print(cvt.year)
-    # print(cvt.genre)
-    # print(cvt.base.lyrics)
-
+    print('Start time: ' + time.strftime('%H:%M:%S'))
+    # cvt = csV2Cla('data/lyrics.csv', 'data/result.pickle')
+    cvt = csV2Cla()
+    cvt = cvt.load('data/result.pickle')
 
     # Considering top 300 most common words from each genre and deleting words that appear
     # in 3 or more genres' list yields a small list of feature words for each genre
     # Note: some non-english words are still making it into the pop genre
-    most_common_by_genre = cvt.featureExtraction(300, 20)
+    most_common_by_genre = cvt.featureExtraction(300, 20, 2)
     feature_list = cvt.getFeatureList(most_common_by_genre)
-    print(feature_list)
 
-    cvt.preprocessData(feature_list, 'data/preprocessed_data.csv')
+    cvt.preprocessData(feature_list, 'data/preprocessed_data_300_2.csv')
+
+    print('End time: ' + time.strftime('%H:%M:%S'))
