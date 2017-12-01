@@ -93,6 +93,8 @@ if __name__ == '__main__':
         X_train, X_test, y_train, y_test = train_test_split(X,y)
 
         mlp = MLPClassifier(hidden_layer_sizes=(numAttr), activation='logistic', solver='lbfgs', max_iter=500)
+        # faster version
+        #mlp = MLPClassifier(hidden_layer_sizes=(numAttr), activation='logistic', solver='adam', learning_rate_init=0.1, max_iter=500)
         print('\tTraining...')
         mlp.fit(X_train,y_train)
         print('\tPredicting...')
@@ -199,6 +201,17 @@ if __name__ == '__main__':
     h1, l1 = ax.get_legend_handles_labels()
     ax.legend(h1, l1, fontsize=20)
     ax.yaxis.grid()
-    plt.show()
-
+	
+    classes = ["Country","Electronic","Folk","Hip-Hop","Indie", "Jazz","Metal","Pop","R&B","Rock"]
+    plt.figure()
+    confusion_m = confusion_matrix(y_test,predictions)
+    print(confusion_m)
+    plot_confusion_matrix(confusion_m, classes)
+    plt.figure()
+    plot_confusion_matrix(confusion_m, classes, True)
+    plt.figure()
+    cr = classification_report(y_test,predictions,labels=classes)
+    print(cr)
+    plot_classification_report(cr,classes)
     print('End time: ' + time.strftime('%H:%M:%S'))
+    plt.show()
